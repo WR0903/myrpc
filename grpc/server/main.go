@@ -8,6 +8,8 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials" // 引入grpc认证包
+	"google.golang.org/grpc/grpclog"
 )
 
 const (
@@ -35,8 +37,14 @@ func main() {
 		fmt.Println("Failed to listen: %v", err)
 	}
 
+	// TLS认证
+	creds, err := credentials.NewServerTLSFromFile("./keys/server.pem", "./keys/server.key")
+	if err != nil {
+		grpclog.Fatalf("Failed to generate credentials %v", err)
+	}
+
 	// 实例化grpc Server
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.Creds(creds))
 
 	// 注册HelloService
 	pb.RegisterHelloServer(s, HelloService)

@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
 )
 
@@ -15,8 +16,14 @@ const (
 )
 
 func main() {
+	// TLS连接  记得把server name改成你写的服务器地址
+	creds, err := credentials.NewClientTLSFromFile("./keys/server.pem", "server")
+	if err != nil {
+		grpclog.Fatalf("Failed to create TLS credentials %v", err)
+	}
+
 	// 连接
-	conn, err := grpc.Dial(Address, grpc.WithInsecure())
+	conn, err := grpc.Dial(Address, grpc.WithTransportCredentials(creds))
 	if err != nil {
 		fmt.Println(err)
 	}
